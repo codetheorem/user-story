@@ -3,6 +3,7 @@
 describe("Authentication Tests", () => {
 
     const testUser = Cypress.env("testUser")
+    const testUser2 = Cypress.env("testUser2")
 
     beforeEach('visit the page and wait it to load', () => {
 
@@ -63,7 +64,7 @@ describe("Authentication Tests", () => {
     /**
      * @failure
      */
-    it("Should not register using already registered credentials", () => {
+    it("Should not register using already registered email", () => {
 
         cy.get('[data-cy=btn-signin]').click()
 
@@ -88,7 +89,32 @@ describe("Authentication Tests", () => {
         cy.contains("Email is already taken")
     })
 
-    it("Should not register using invalid details", () => {
+    it("Should not register using already registered username", () => {
+
+        cy.get('[data-cy=btn-signin]').click()
+
+        cy.url().should('equal', `${Cypress.config().baseUrl}/login`)
+
+        cy.get('[data-cy=link-create-account]').click()
+
+        cy.url().should('equal', `${Cypress.config().baseUrl}/register`)
+
+        cy.get('[data-cy=username]').type(testUser2.username) //Using already registered username
+
+        cy.get('[data-cy=email]').type(testUser2.email) 
+
+        cy.get('[data-cy=password]')
+            .should('have.attr', 'type', 'password')
+            .type(testUser2.password)
+
+        cy.get('[data-cy=tc]').click()
+
+        cy.get('[data-cy=btn-register]').click()
+
+        cy.contains("Username already taken")
+    })
+
+    it("Should not register using invalid email", () => {
 
 
         cy.get('[data-cy=btn-signin]').click()
@@ -104,13 +130,14 @@ describe("Authentication Tests", () => {
         cy.get('[data-cy=email]').type(Math.random() * 1000) //Invalid email address
 
         cy.get('[data-cy=password]')
-            .should('have.attr', 'type', 'password') // Password not provided
+            .should('have.attr', 'type', 'password')
+            .type(testUser.password)
 
         cy.get('[data-cy=tc]').click()
 
         cy.get('[data-cy=btn-register]').click()
 
-        cy.contains("This is required")
+        cy.contains("Please provide valid email address.")
     })
 
 
